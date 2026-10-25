@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "spectra-tv-shows-catalog",
+  "name": "tv-series-web",
   "main": "worker/index.ts",
   "compatibility_date": "2026-03-01",
   "compatibility_flags": ["nodejs_compat"],
@@ -8,21 +8,22 @@
     "directory": "./dist",
     "binding": "ASSETS"
   },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "spectra_tv_prod",
-      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
-      "migrations_dir": "migrations"
-    }
-  ],
-  "r2_buckets": [
-    {
-      "binding": "MEDIA_BUCKET",
-      "bucket_name": "tv-catalog-media"
-    }
-  ],
   "vars": {
     "ENVIRONMENT": "production"
   }
+  // NOTE: For Cloudflare Dashboard Git deployments, bind D1 and R2 directly in:
+  // Workers & Pages > tv-series-web > Settings > Bindings
+  //
+  // Or if deploying locally via Wrangler CLI, create the database first:
+  // npx wrangler d1 create spectra_tv_prod
+  // and uncomment the block below with your real generated database_id UUID:
+  //
+  // "d1_databases": [
+  //   {
+  //     "binding": "DB",
+  //     "database_name": "spectra_tv_prod",
+  //     "database_id": "PASTE_REAL_D1_UUID_HERE",
+  //     "migrations_dir": "migrations"
+  //   }
+  // ]
 }

@@ -27,7 +27,7 @@ export interface ExecutionContext {
 }
 
 export interface Env {
-  DB: D1Database;
+  DB?: D1Database;
   MEDIA_BUCKET?: R2Bucket;
   ENVIRONMENT?: string;
   ADMIN_SESSION_SECRET?: string;
@@ -38,8 +38,25 @@ export default {
     const url = new URL(request.url);
     const pathname = url.pathname;
 
+    // Check if D1 database binding exists
+    const checkDb = () => {
+      if (!env.DB) {
+        return new Response(
+          JSON.stringify({
+            error: "D1 database binding 'DB' is not configured yet.",
+            instruction: "In Cloudflare Dashboard, go to Workers & Pages > Settings > Bindings and bind your D1 database to variable name 'DB'."
+          }),
+          { status: 503, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+      return null;
+    };
+
     // Public API: GET /api/shows
     if (pathname === '/api/shows' && request.method === 'GET') {
+      const dbErr = checkDb();
+      if (dbErr) return dbErr;
+
       try {
         const search = url.searchParams.get('search') || '';
         const genre = url.searchParams.get('genre') || '';
@@ -72,7 +89,7 @@ export default {
         query += ' LIMIT ? OFFSET ?';
         params.push(limit, offset);
 
-        const stmt = env.DB.prepare(query);
+        const stmt = env.DB!.prepare(query);
         const { results } = await stmt.bind(...params).all();
 
         return new Response(JSON.stringify({ shows: results, page, limit }), {
@@ -85,8 +102,11 @@ export default {
 
     // Public API: GET /api/shows/:slug
     if (pathname.startsWith('/api/shows/') && request.method === 'GET') {
+      const dbErr = checkDb();
+      if (dbErr) return dbErr;
+
       const slug = pathname.replace('/api/shows/', '');
-      const show = await env.DB.prepare('SELECT * FROM tv_shows WHERE slug = ? AND is_published = 1')
+      const show = await env.DB!.prepare('SELECT * FROM tv_shows WHERE slug = ? AND is_published = 1')
         .bind(slug)
         .first();
 
@@ -94,7 +114,7 @@ export default {
         return new Response(JSON.stringify({ error: 'Not found' }), { status: 404 });
       }
 
-      const seasons = await env.DB.prepare('SELECT * FROM seasons WHERE tv_show_id = ? AND is_published = 1 ORDER BY season_number ASC')
+      const seasons = await env.DB!.prepare('SELECT * FROM seasons WHERE tv_show_id = ? AND is_published = 1 ORDER BY season_number ASC')
         .bind((show as any).id)
         .all();
 
