@@ -1,0 +1,6 @@
+{
+  "name": "Spectra TV - TV Shows & Series Catalog",
+  "description": "Discover trending TV shows, explore seasons and episodes, watch official trailers, and manage the complete series catalog with the secure admin dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
