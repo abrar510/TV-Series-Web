@@ -38,19 +38,21 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     credentials: 'include' // transmit cookies
   });
 
-  if (!res.ok) {
-    let errorMsg = `Request failed (${res.status})`;
-    try {
-      const errorData = await res.json();
-      if (errorData.error) errorMsg = errorData.error;
-    } catch {
-      const text = await res.text();
-      if (text) errorMsg = text;
+  const contentType = res.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    const text = await res.text();
+    if (!res.ok) {
+      throw new Error(text || `Server error (${res.status})`);
     }
-    throw new Error(errorMsg);
+    throw new Error(`Backend response was not JSON. Please deploy the updated worker code to Cloudflare.`);
   }
 
-  return res.json() as Promise<T>;
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || `Request failed (${res.status})`);
+  }
+
+  return data as T;
 }
 
 // -----------------------------------------------------------------------------
