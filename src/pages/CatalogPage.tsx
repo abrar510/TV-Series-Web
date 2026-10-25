@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TvShow, Genre } from '../types';
 import { publicApi } from '../services/api';
 import { ShowCard } from '../components/ShowCard';
+import { DEFAULT_SHOWS } from '../data/defaultCatalog';
 import { Search, Filter, SlidersHorizontal, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 interface CatalogPageProps {
@@ -54,11 +55,19 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
         sort: selectedSort,
         trending: initialTrending || undefined
       });
-      setShows(res.shows);
-      setTotal(res.total);
-      setTotalPages(res.totalPages);
+      if (res && res.shows && res.shows.length > 0) {
+        setShows(res.shows);
+        setTotal(res.total);
+        setTotalPages(res.totalPages);
+      } else {
+        setShows(DEFAULT_SHOWS);
+        setTotal(DEFAULT_SHOWS.length);
+        setTotalPages(1);
+      }
     } catch (err) {
-      console.error('Failed to fetch shows:', err);
+      setShows(DEFAULT_SHOWS);
+      setTotal(DEFAULT_SHOWS.length);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }

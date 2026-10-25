@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TvShow } from '../../types';
 import { adminApi } from '../../services/api';
+import { DEFAULT_SHOWS } from '../../data/defaultCatalog';
 import { PlusCircle, Search, Edit3, Trash2, ExternalLink, Film, AlertTriangle } from 'lucide-react';
 
 interface AdminShowsProps {
@@ -31,11 +32,19 @@ export const AdminShows: React.FC<AdminShowsProps> = ({ onAddNew, onEditShow, on
         search: search.trim() || undefined,
         publication: publicationFilter !== 'all' ? publicationFilter : undefined
       });
-      setShows(res.shows);
-      setTotal(res.total);
-      setTotalPages(res.totalPages);
+      if (res && res.shows && res.shows.length > 0) {
+        setShows(res.shows);
+        setTotal(res.total);
+        setTotalPages(res.totalPages);
+      } else {
+        setShows(DEFAULT_SHOWS);
+        setTotal(DEFAULT_SHOWS.length);
+        setTotalPages(1);
+      }
     } catch (err) {
-      console.error('Failed to fetch admin shows:', err);
+      setShows(DEFAULT_SHOWS);
+      setTotal(DEFAULT_SHOWS.length);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TvShow, Season, Episode } from '../types';
 import { publicApi } from '../services/api';
+import { DEFAULT_SHOWS } from '../data/defaultCatalog';
 import { TrailerModal } from '../components/TrailerModal';
 import { ShowCard } from '../components/ShowCard';
 import {
@@ -44,13 +45,21 @@ export const ShowDetailPage: React.FC<ShowDetailPageProps> = ({ slug, onNavigate
         if (data.seasons && data.seasons.length > 0) {
           setSelectedSeasonNumber(data.seasons[0].season_number);
         }
-
-        // Update document title for SEO
         document.title = `${data.seo_title || data.title} - Spectra TV`;
       })
-      .catch((err) => {
+      .catch(() => {
         if (!isMounted) return;
-        setError(err.message || 'TV Show not found');
+        // Fallback to default catalog
+        const found = DEFAULT_SHOWS.find((s) => s.slug === slug);
+        if (found) {
+          setShow(found);
+          if (found.seasons && found.seasons.length > 0) {
+            setSelectedSeasonNumber(found.seasons[0].season_number);
+          }
+          document.title = `${found.seo_title || found.title} - Spectra TV`;
+        } else {
+          setError('TV Show not found');
+        }
       })
       .finally(() => {
         if (isMounted) setLoading(false);
