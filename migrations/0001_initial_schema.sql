@@ -142,3 +142,16 @@ CREATE INDEX IF NOT EXISTS idx_seasons_show ON seasons(tv_show_id);
 CREATE INDEX IF NOT EXISTS idx_episodes_season ON episodes(season_id);
 CREATE INDEX IF NOT EXISTS idx_episodes_show ON episodes(tv_show_id);
 CREATE INDEX IF NOT EXISTS idx_login_attempts_ip ON login_attempts(ip_address, attempt_time);
+
+-- Seed default administrator (admin@spectratv.com / admin123456)
+INSERT OR IGNORE INTO admins (id, email, password_hash, display_name, role, created_at, updated_at)
+VALUES (
+  'admin_master',
+  'admin@spectratv.com',
+  '$2b$10$3lByrFjPoTUqHVFf8DJoXecZ/zyL91b9wgp/G7VMNiSuqf/PKsXU.',
+  'System Administrator',
+  'superadmin',
+  '2026-01-01T00:00:00.000Z',
+  '2026-01-01T00:00:00.000Z'
+);
+

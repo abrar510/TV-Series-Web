@@ -59,6 +59,27 @@ export function saveDatabase(): void {
 }
 
 function seedDefaults(db: SqlJsDatabase): void {
+  const now = new Date().toISOString();
+
+  // Check if admin exists
+  const adminRes = db.exec("SELECT COUNT(*) as count FROM admins");
+  const adminCount = adminRes[0]?.values[0]?.[0] as number;
+  if (adminCount === 0) {
+    // Default admin: admin@spectratv.com / admin123456
+    db.run(
+      "INSERT INTO admins (id, email, password_hash, display_name, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [
+        'admin_master',
+        'admin@spectratv.com',
+        '$2b$10$3lByrFjPoTUqHVFf8DJoXecZ/zyL91b9wgp/G7VMNiSuqf/PKsXU.',
+        'System Administrator',
+        'superadmin',
+        now,
+        now
+      ]
+    );
+  }
+
   // Check if genres exist
   const res = db.exec("SELECT COUNT(*) as count FROM genres");
   const count = res[0]?.values[0]?.[0] as number;
